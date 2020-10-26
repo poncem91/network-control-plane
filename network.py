@@ -141,16 +141,41 @@ class Router:
         self.intf_L = [Interface(max_queue_size) for _ in range(len(cost_D))]
         #save neighbors and interfeces on which we connect to them
         self.cost_D = cost_D    # {neighbor: {interface: cost}}
-        #TODO: set up the routing table for connected hosts
-        self.rt_tbl_D = {}      # {destination: {router: cost}}
+        self.rt_tbl_D = {}      # {destination: {from-router: cost}}
+
+        for destination in ["H1", "H2", "RA", "RB"]:
+            for row in ["RA", "RB"]:
+                if destination not in self.rt_tbl_D:
+                    self.rt_tbl_D.update({destination: {row: "-"}})
+                else:
+                    self.rt_tbl_D[destination].update({row: "-"})
+                if row == self.name and destination in self.cost_D:
+                    for interface, cost in self.cost_D[destination].items():
+                        self.rt_tbl_D[destination][row] = cost
+
+        self.rt_tbl_D[self.name][self.name] = 0
+
         print('%s: Initialized routing table' % self)
         self.print_routes()
     
         
     ## Print routing table
     def print_routes(self):
-        #TODO: print the routes as a two dimensional table
-        print(self.rt_tbl_D)
+        table = "╒══════╤══════╤══════╤══════╤══════╕\n│ "
+        table += self.name
+        table += "   │"
+        for destination in ["H1", "H2", "RA", "RB"]:
+            table += "   " + destination + " │"
+        table += "\n╞══════╪══════╪══════╪══════╪══════╡\n"
+
+        for router in ["RA", "RB"]:
+            table += "│ " + router + "   │"
+            for destination in ["H1", "H2", "RA", "RB"]:
+                table += "    "
+                table += str(self.rt_tbl_D[destination][router])
+                table += " │"
+            table += "\n├──────┼──────┼──────┼──────┼──────┤\n"
+        print(table)
 
 
     ## called when printing the object
