@@ -204,6 +204,7 @@ class Router:
             # TODO: Here you will need to implement a lookup into the 
             # forwarding table to find the appropriate outgoing interface
             # for now we assume the outgoing interface is 1
+            self.rt_tbl_D[p.dst]
             self.intf_L[1].put(p.to_byte_S(), 'out', True)
             print('%s: forwarding packet "%s" from interface %d to %d' % \
                   (self, p, i, 1))
@@ -227,6 +228,11 @@ class Router:
     # forward the packet according to the routing table
     #  @param p Packet containing routing information
     def update_routes(self, p, i):
+
+        # ignores non-control packages
+        if p.prot_S != 'control':
+            return
+
         print('%s: Received routing update %s from interface %d' % (self, p, i))
 
         update = False  # flag to check if there has been an update to current router's cost to destinations

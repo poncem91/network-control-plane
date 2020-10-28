@@ -227,6 +227,11 @@ class Router:
     # forward the packet according to the routing table
     #  @param p Packet containing routing information
     def update_routes(self, p, i):
+
+        # ignores non-control packages
+        if p.prot_S != 'control':
+            return
+
         print('%s: Received routing update %s from interface %d' % (self, p, i))
 
         update = False  # flag to check if there has been an update to current router's cost to destinations
