@@ -200,14 +200,29 @@ class Router:
     #  @param p Packet to forward
     #  @param i Incoming interface number for packet p
     def forward_packet(self, p, i):
+        print("inside forward packet")
+        last_hop = False
+        cost_to_dst = self.rt_tbl_D[p.dst][self.name]
+        next_hop_out_intf = None
+
+        if p.dst in self.cost_D and cost_to_dst == self.rt_tbl_D[p.dst][self.name]:
+            next_hop_out_intf = list(self.cost_D[p.dst])[0]
+            last_hop = True
+
+        if not last_hop:
+            for neighbor in self.cost_D:
+                if neighbor not in self.rt_tbl_D[p.dst]:
+                    continue
+                if self.rt_tbl_D[p.dst][neighbor] + self.rt_tbl_D[neighbor][self.name] == cost_to_dst:
+                    next_hop_out_intf = list(self.cost_D[neighbor])[0]
+
+        if not next_hop_out_intf:
+            return  # something went wrong, there is no hop that matches routing table
+
         try:
-            # TODO: Here you will need to implement a lookup into the 
-            # forwarding table to find the appropriate outgoing interface
-            # for now we assume the outgoing interface is 1
-            self.rt_tbl_D[p.dst]
-            self.intf_L[1].put(p.to_byte_S(), 'out', True)
+            self.intf_L[next_hop_out_intf].put(p.to_byte_S(), 'out', True)
             print('%s: forwarding packet "%s" from interface %d to %d' % \
-                  (self, p, i, 1))
+                  (self, p, i, next_hop_out_intf))
         except queue.Full:
             print('%s: packet "%s" lost on interface %d' % (self, p, i))
             pass
