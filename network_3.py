@@ -200,13 +200,30 @@ class Router:
     #  @param p Packet to forward
     #  @param i Incoming interface number for packet p
     def forward_packet(self, p, i):
+        last_hop = False  # flag to determine whether this is the last hop before destination
+        cost_to_dst = self.rt_tbl_D[p.dst][self.name]
+        next_hop_out_intf = None
+
+        # checks if we're at last hop before destination and if so sets appropriate out intf
+        if p.dst in self.cost_D and cost_to_dst == self.rt_tbl_D[p.dst][self.name]:
+            next_hop_out_intf = list(self.cost_D[p.dst])[0]
+            last_hop = True
+
+        # if it's not the last hop before the destination, it determines the out intf of the next hop to reach dst
+        if not last_hop:
+            for neighbor in self.cost_D:
+                if neighbor not in self.rt_tbl_D[p.dst]:
+                    continue
+                if self.rt_tbl_D[p.dst][neighbor] + self.rt_tbl_D[neighbor][self.name] == cost_to_dst:
+                    next_hop_out_intf = list(self.cost_D[neighbor])[0]
+
+        if next_hop_out_intf is None:
+            return  # something went wrong, there is no hop that matches routing table
+
         try:
-            # TODO: Here you will need to implement a lookup into the 
-            # forwarding table to find the appropriate outgoing interface
-            # for now we assume the outgoing interface is 1
-            self.intf_L[1].put(p.to_byte_S(), 'out', True)
+            self.intf_L[next_hop_out_intf].put(p.to_byte_S(), 'out', True)
             print('%s: forwarding packet "%s" from interface %d to %d' % \
-                  (self, p, i, 1))
+                  (self, p, i, next_hop_out_intf))
         except queue.Full:
             print('%s: packet "%s" lost on interface %d' % (self, p, i))
             pass
@@ -227,6 +244,11 @@ class Router:
     # forward the packet according to the routing table
     #  @param p Packet containing routing information
     def update_routes(self, p, i):
+
+        # ignores non-control packages
+        if p.prot_S != 'control':
+            return
+
         print('%s: Received routing update %s from interface %d' % (self, p, i))
 
         update = False  # flag to check if there has been an update to current router's cost to destinations
