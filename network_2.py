@@ -200,15 +200,16 @@ class Router:
     #  @param p Packet to forward
     #  @param i Incoming interface number for packet p
     def forward_packet(self, p, i):
-        print("inside forward packet")
-        last_hop = False
+        last_hop = False  # flag to determine whether this is the last hop before destination
         cost_to_dst = self.rt_tbl_D[p.dst][self.name]
         next_hop_out_intf = None
 
+        # checks if we're at last hop before destination and if so sets appropriate out intf
         if p.dst in self.cost_D and cost_to_dst == self.rt_tbl_D[p.dst][self.name]:
             next_hop_out_intf = list(self.cost_D[p.dst])[0]
             last_hop = True
 
+        # if it's not the last hop before the destination, it determines the out intf of the next hop to reach dst
         if not last_hop:
             for neighbor in self.cost_D:
                 if neighbor not in self.rt_tbl_D[p.dst]:
