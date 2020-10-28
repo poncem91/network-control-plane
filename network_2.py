@@ -217,7 +217,7 @@ class Router:
                 if self.rt_tbl_D[p.dst][neighbor] + self.rt_tbl_D[neighbor][self.name] == cost_to_dst:
                     next_hop_out_intf = list(self.cost_D[neighbor])[0]
 
-        if not next_hop_out_intf:
+        if next_hop_out_intf is None:
             return  # something went wrong, there is no hop that matches routing table
 
         try:
