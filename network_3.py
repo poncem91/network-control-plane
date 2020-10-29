@@ -142,20 +142,20 @@ class Router:
         self.cost_D = cost_D  # {neighbor: {interface: cost}}
         self.rt_tbl_D = {}  # {destination: {from-router: cost}}
 
-        rows = [self.name]
+        self.neighboring_routers = [self.name]
         for neighbor in self.cost_D:
             if neighbor[0] == "R":  # check to see if neighbor is a router
-                rows.append(neighbor)
+                self.neighboring_routers.append(neighbor)
 
         for destination in ["H1", "H2", "RA", "RB", "RC", "RD"]:
-            for row in rows:
+            for router in self.neighboring_routers:
                 if destination not in self.rt_tbl_D:
-                    self.rt_tbl_D.update({destination: {row: "-"}})
+                    self.rt_tbl_D.update({destination: {router: "-"}})
                 else:
-                    self.rt_tbl_D[destination].update({row: "-"})
-                if row == self.name and destination in self.cost_D:
+                    self.rt_tbl_D[destination].update({router: "-"})
+                if router == self.name and destination in self.cost_D:
                     for interface, cost in self.cost_D[destination].items():
-                        self.rt_tbl_D[destination][row] = cost
+                        self.rt_tbl_D[destination][router] = cost
 
         self.rt_tbl_D[self.name][self.name] = 0
 
@@ -164,20 +164,20 @@ class Router:
 
     # Print routing table
     def print_routes(self):
-        table = "╒══════╤══════╤══════╤══════╤══════╕\n│ "
+        table = "╒══════╤══════╤══════╤══════╤══════╤══════╤══════╕\n│ "
         table += self.name
         table += "   │"
-        for destination in ["H1", "H2", "RA", "RB"]:
+        for destination in ["H1", "H2", "RA", "RB", "RC", "RD"]:
             table += "   " + destination + " │"
-        table += "\n╞══════╪══════╪══════╪══════╪══════╡\n"
+        table += "\n╞══════╪══════╪══════╪══════╪══════╪══════╪══════╡\n"
 
-        for router in ["RA", "RB"]:
+        for router in self.neighboring_routers:
             table += "│ " + router + "   │"
-            for destination in ["H1", "H2", "RA", "RB"]:
+            for destination in ["H1", "H2", "RA", "RB", "RC", "RD"]:
                 table += "    "
                 table += str(self.rt_tbl_D[destination][router])
                 table += " │"
-            table += "\n├──────┼──────┼──────┼──────┼──────┤\n"
+            table += "\n├──────┼──────┼──────┼──────┼──────┼──────┼──────┤\n"
         print(table)
 
     # called when printing the object
