@@ -144,7 +144,7 @@ class Router:
 
         self.neighboring_routers = [self.name]
         for neighbor in self.cost_D:
-            if neighbor[0] == "R":  # check to see if neighbor is a router
+            if Router.is_router(neighbor):  # check to see if neighbor is a router
                 self.neighboring_routers.append(neighbor)
 
         for destination in ["H1", "H2", "RA", "RB", "RC", "RD"]:
@@ -161,6 +161,13 @@ class Router:
 
         print('%s: Initialized routing table' % self)
         self.print_routes()
+
+    @staticmethod
+    def is_router(neighbor):
+        if neighbor[0] == "R":
+            return True
+        else:
+            return False
 
     # Print routing table
     def print_routes(self):
@@ -250,10 +257,6 @@ class Router:
     #  @param p Packet containing routing information
     def update_routes(self, p, i):
 
-        # ignores non-control packages
-        if p.prot_S != 'control':
-            return
-
         # print('%s: Received routing update %s from interface %d' % (self, p, i))
 
         update = False  # flag to check if there has been an update to current router's cost to destinations
@@ -288,11 +291,12 @@ class Router:
                 self.rt_tbl_D[destination][self.name] = new_cost_to_dest
                 update = True
 
-        # checks if there were any updates, if so it sends new routes to all neighbors
+        # checks if there were any updates, if so it sends new routes to all neighbor routers
         if update:
             for neighbor in self.cost_D:
-                out_intf = list(self.cost_D[neighbor])[0]
-                self.send_routes(out_intf)
+                if Router.is_router(neighbor):
+                    out_intf = list(self.cost_D[neighbor])[0]
+                    self.send_routes(out_intf)
 
     # thread target for the host to keep forwarding data
     def run(self):
