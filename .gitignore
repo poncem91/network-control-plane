@@ -12,3 +12,6 @@ lib/python*
 \.project
 
 *.ini
+contributors.txt
+partner.txt
+PA4.mp4
