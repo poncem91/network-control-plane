@@ -105,7 +105,7 @@ class Host:
     # @param data_S: data being transmitted to the network layer
     def udt_send(self, dst, data_S):
         p = NetworkPacket(dst, 'data', data_S)
-        print('%s: sending packet "%s"' % (self, p))
+        # print('%s: sending packet "%s"' % (self, p))
         self.intf_L[0].put(p.to_byte_S(), 'out')  # send packets always enqueued successfully
 
     # receive packet from the network layer
@@ -254,7 +254,7 @@ class Router:
         if p.prot_S != 'control':
             return
 
-        print('%s: Received routing update %s from interface %d' % (self, p, i))
+        # print('%s: Received routing update %s from interface %d' % (self, p, i))
 
         update = False  # flag to check if there has been an update to current router's cost to destinations
         src_router = json.loads(p.data_S)["from"]  # src of router who sent updated routing table
