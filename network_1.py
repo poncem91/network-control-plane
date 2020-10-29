@@ -142,8 +142,13 @@ class Router:
         self.cost_D = cost_D  # {neighbor: {interface: cost}}
         self.rt_tbl_D = {}  # {destination: {from-router: cost}}
 
+        rows = [self.name]
+        for neighbor in self.cost_D:
+            if neighbor[0] == "R":  # check to see if neighbor is a router
+                rows.append(neighbor)
+
         for destination in ["H1", "H2", "RA", "RB"]:
-            for row in ["RA", "RB"]:
+            for row in rows:
                 if destination not in self.rt_tbl_D:
                     self.rt_tbl_D.update({destination: {row: "-"}})
                 else:
