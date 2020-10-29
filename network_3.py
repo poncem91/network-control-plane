@@ -105,7 +105,7 @@ class Host:
     # @param data_S: data being transmitted to the network layer
     def udt_send(self, dst, data_S):
         p = NetworkPacket(dst, 'data', data_S)
-        # print('%s: sending packet "%s"' % (self, p))
+        print('%s: sending packet "%s"' % (self, p))
         self.intf_L[0].put(p.to_byte_S(), 'out')  # send packets always enqueued successfully
 
     # receive packet from the network layer
